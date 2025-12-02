@@ -4,7 +4,7 @@ import { authService } from '~/services/authService'
 import { sendResponse } from '~/utils/responseHelper'
 import { SignUpInput, SignInInput } from '~/validations/authValidation'
 
-export const signUp = async (req: Request, res: Response) => {
+const signUp = async (req: Request, res: Response) => {
   const userData = req.body as SignUpInput
 
   const newUser = await authService.createUser(userData)
@@ -15,7 +15,7 @@ export const signUp = async (req: Request, res: Response) => {
   })
 }
 
-export const signIn = async (req: Request, res: Response) => {
+const signIn = async (req: Request, res: Response) => {
   const credentials = req.body as SignInInput
 
   const { accessToken, refreshToken, displayName } = await authService.signIn(credentials)
@@ -30,3 +30,16 @@ export const signIn = async (req: Request, res: Response) => {
 
   return sendResponse.success(res, { accessToken }, `User ${displayName} signed in successfully`)
 }
+
+const signOut = async (req: Request, res: Response) => {
+  const { refreshToken } = req.cookies as { refreshToken: string }
+
+  if (refreshToken) {
+    await authService.signOut(refreshToken)
+    res.clearCookie('refreshToken')
+  }
+
+  return res.sendStatus(204)
+}
+
+export default { signUp, signIn, signOut }

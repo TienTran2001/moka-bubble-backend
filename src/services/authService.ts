@@ -87,6 +87,10 @@ export const authService = {
     }
   },
 
+  async signOut(refreshToken: string) {
+    await Session.deleteOne({ refreshToken })
+  },
+
   async findUser(filter: Partial<IUser>): Promise<IUser | null> {
     return User.findOne(filter as Record<string, unknown>)
   }
