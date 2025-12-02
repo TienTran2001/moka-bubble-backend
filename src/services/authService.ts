@@ -7,7 +7,7 @@ import Session from '~/models/Session'
 import { envConfig } from '~/config/env'
 import { SignUpInput, SignInInput } from '~/validations/authValidation'
 
-const ACCESS_TOKEN_TTL = Number(envConfig.ACCESS_TOKEN_EXPIRES_IN) * 60 * 1000
+const ACCESS_TOKEN_TTL_SECONDS = Number(envConfig.ACCESS_TOKEN_EXPIRES_IN) * 60
 const REFRESH_TOKEN_TTL = Number(envConfig.REFRESH_TOKEN_EXPIRES_IN) * 60 * 60 * 24 * 1000
 
 export const authService = {
@@ -65,7 +65,7 @@ export const authService = {
       },
       envConfig.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: ACCESS_TOKEN_TTL
+        expiresIn: ACCESS_TOKEN_TTL_SECONDS
       }
     )
 
