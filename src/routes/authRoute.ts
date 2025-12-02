@@ -1,11 +1,12 @@
 import { Router } from 'express'
-import { signUp } from '~/controllers/authController'
+import { signUp, signIn } from '~/controllers/authController'
 import { validateRequest } from '~/middlewares/validateRequest'
-import { signUpSchema } from '~/validations/authValidation'
+import { signUpSchema, signInSchema } from '~/validations/authValidation'
 
 const router = Router()
 
 // Public routes
 router.post('/sign-up', validateRequest(signUpSchema), signUp)
+router.post('/sign-in', validateRequest(signInSchema), signIn)
 
 export default router
