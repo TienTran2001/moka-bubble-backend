@@ -1,4 +1,4 @@
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import { IRequest } from '~/types/request'
 import { sendResponse } from '~/utils/responseHelper'
 
@@ -9,6 +9,11 @@ const authMe = (req: IRequest, res: Response) => {
   return sendResponse.success(res, { me: user }, 'Get user information successfully')
 }
 
+const test = async (req: Request, res: Response) => {
+  return res.sendStatus(204)
+}
+
 export default {
-  authMe
+  authMe,
+  test
 }

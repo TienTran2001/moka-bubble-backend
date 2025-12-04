@@ -6,5 +6,6 @@ const router = Router()
 
 router.use(protectedRoute)
 router.get('/me', userController.authMe)
+router.get('/test', userController.test)
 
 export default router

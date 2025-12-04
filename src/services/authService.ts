@@ -1,13 +1,15 @@
 import bcrypt from 'bcrypt'
+import crypto from 'crypto'
 import createHttpError from 'http-errors'
 import jwt from 'jsonwebtoken'
-import crypto from 'crypto'
-import User, { IUser } from '~/models/User'
-import Session from '~/models/Session'
 import { envConfig } from '~/config/env'
-import { SignUpInput, SignInInput } from '~/validations/authValidation'
+import Session from '~/models/Session'
+import User, { IUser } from '~/models/User'
+import { SignInInput, SignUpInput } from '~/validations/authValidation'
 
+// access token ttl in seconds
 const ACCESS_TOKEN_TTL_SECONDS = Number(envConfig.ACCESS_TOKEN_EXPIRES_IN) * 60
+// refresh token ttl in milliseconds
 const REFRESH_TOKEN_TTL = Number(envConfig.REFRESH_TOKEN_EXPIRES_IN) * 60 * 60 * 24 * 1000
 
 export const authService = {
@@ -59,15 +61,7 @@ export const authService = {
     }
 
     // Create access token
-    const accessToken = jwt.sign(
-      {
-        userId: user._id.toString()
-      },
-      envConfig.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: ACCESS_TOKEN_TTL_SECONDS
-      }
-    )
+    const accessToken = this.createAccessToken(user._id.toString())
 
     // Create refresh token (random string) and session
     const refreshToken = crypto.randomBytes(64).toString('hex')
@@ -93,5 +87,37 @@ export const authService = {
 
   async findUser(filter: Partial<IUser>): Promise<IUser | null> {
     return User.findOne(filter as Record<string, unknown>)
+  },
+
+  createAccessToken(userId: string) {
+    const accessToken = jwt.sign(
+      {
+        userId
+      },
+      envConfig.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: ACCESS_TOKEN_TTL_SECONDS
+      }
+    )
+    return accessToken
+  },
+
+  async refreshToken(refreshToken: string): Promise<string> {
+    const existingToken = await Session.findOne({ refreshToken })
+
+    if (!existingToken) {
+      throw createHttpError.Unauthorized('Invalid refresh token')
+    }
+
+    const isExpired = existingToken.expiresAt.getTime() <= Date.now()
+
+    if (isExpired) {
+      await Session.deleteOne({ _id: existingToken._id })
+      throw createHttpError.Unauthorized('Refresh token expired')
+    }
+
+    const newAccessToken = this.createAccessToken(existingToken.userId.toString())
+
+    return newAccessToken
   }
 }
