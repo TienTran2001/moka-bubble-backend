@@ -15,7 +15,7 @@ export const protectedRoute = async (req: IRequest, res: Response, next: NextFun
     const token = authHeader?.split(' ')[1]
 
     if (!token) {
-      return sendResponse.error(res, "Don't have token", 401)
+      return sendResponse.error(res, "Don't have token", 403)
     }
 
     const decoded = jwt.verify(token, envConfig.ACCESS_TOKEN_SECRET) as IJwtPayload
@@ -30,7 +30,7 @@ export const protectedRoute = async (req: IRequest, res: Response, next: NextFun
     next()
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      return sendResponse.error(res, 'Invalid token', 401)
+      return sendResponse.error(res, 'Invalid token', 403)
     }
 
     return sendResponse.error(res, 'Internal server error', 500)

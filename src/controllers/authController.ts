@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import envConfig from '~/config/env'
 import { authService } from '~/services/authService'
 import { sendResponse } from '~/utils/responseHelper'
-import { SignUpInput, SignInInput } from '~/validations/authValidation'
+import { SignInInput, SignUpInput } from '~/validations/authValidation'
 
 const signUp = async (req: Request, res: Response) => {
   const userData = req.body as SignUpInput
@@ -42,4 +42,16 @@ const signOut = async (req: Request, res: Response) => {
   return res.sendStatus(204)
 }
 
-export default { signUp, signIn, signOut }
+const refreshToken = async (req: Request, res: Response) => {
+  const token = req.cookies?.refreshToken
+
+  if (!token) {
+    return sendResponse.error(res, 'No refresh token found', 401)
+  }
+
+  const accessToken = await authService.refreshToken(token)
+
+  return sendResponse.success(res, { accessToken }, 'Created access token')
+}
+
+export default { signUp, signIn, signOut, refreshToken }
