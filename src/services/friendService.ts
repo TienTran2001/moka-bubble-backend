@@ -62,10 +62,15 @@ export const friendService = {
     const friendRequest = await checkFriendRequest(requestId, userId)
     const { from, to, _id } = friendRequest
 
+    // Normalize userA / userB to maintain consistency
+    let userA = from.toString()
+    let userB = to.toString()
+    if (userA > userB) [userA, userB] = [userB, userA]
+
     // create new friend
     const result = await Friend.create({
-      userA: from,
-      userB: to
+      userA,
+      userB
     })
 
     if (result) {
