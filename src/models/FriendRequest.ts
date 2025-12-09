@@ -14,7 +14,7 @@ const friendRequestSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      maxLength: 300
+      maxlength: 300
     }
   },
   {
