@@ -33,6 +33,6 @@ export const protectedRoute = async (req: IRequest, res: Response, next: NextFun
       return sendResponse.error(res, 'Invalid token', 403)
     }
 
-    return sendResponse.error(res, error.message, error.statusCode)
+    return next(error)
   }
 }
