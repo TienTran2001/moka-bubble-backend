@@ -19,6 +19,10 @@ export const sendResponse = {
     return res.status(201).json(response)
   },
 
+  notFound(res: Response, message: string = 'Not found') {
+    return this.error(res, message, 404)
+  },
+
   // Error responses
   error(res: Response, message: string, statusCode: number = 400, errors?: Array<{ field: string; message: string }>) {
     const response: ApiResponse = { success: false, message, errors }
