@@ -89,7 +89,7 @@ const conversationSchema = new mongoose.Schema(
   }
 )
 
-conversationSchema.index({ 'participant.userId': 1, lastMessageAt: -1 })
+conversationSchema.index({ 'participants.userId': 1, lastMessageAt: -1 })
 const Conversation = mongoose.model('Conversation', conversationSchema)
 
 export default Conversation
