@@ -28,11 +28,11 @@ export const protectedRoute = async (req: IRequest, res: Response, next: NextFun
 
     req.user = user
     next()
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof jwt.JsonWebTokenError) {
       return sendResponse.error(res, 'Invalid token', 403)
     }
 
-    return sendResponse.error(res, 'Internal server error', 500)
+    return sendResponse.error(res, error.message, error.statusCode)
   }
 }
