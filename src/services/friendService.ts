@@ -2,6 +2,7 @@ import createHttpError from 'http-errors'
 import { User } from '~/models'
 import Friend from '~/models/Friend'
 import FriendRequest from '~/models/FriendRequest'
+import { checkFriendRequest } from '~/utils/checkFriendRequest'
 
 interface SendFriendRequestInput {
   from: string
@@ -58,44 +59,29 @@ export const friendService = {
   },
 
   acceptFriendRequest: async ({ requestId, userId }: AcceptFriendRequestInput) => {
-    // check request exists
-    const requestExisting = await FriendRequest.findById(requestId)
-
-    if (!requestExisting) throw createHttpError.NotFound('Request not found')
-
-    // check if user is the receiver
-    if (requestExisting.to.toString() !== userId)
-      throw createHttpError.Forbidden('You are not authorized to accept this request')
+    const friendRequest = await checkFriendRequest(requestId, userId)
+    const { from, to, _id } = friendRequest
 
     // create new friend
     const result = await Friend.create({
-      userA: requestExisting.from,
-      userB: requestExisting.to
+      userA: from,
+      userB: to
     })
 
     if (result) {
-      await FriendRequest.findByIdAndDelete(requestId)
+      await FriendRequest.findByIdAndDelete(_id)
     }
 
-    const newFriend = await User.findById(requestExisting.from).select('_id displayName avatarUrl').lean()
+    const newFriend = await User.findById(from).select('_id displayName avatarUrl').lean()
 
     return newFriend
   },
 
   declineFriendRequest: async ({ requestId, userId }: DeclineFriendRequestInput) => {
-    // check request exists
-    const requestExisting = await FriendRequest.findById(requestId)
-
-    if (!requestExisting) {
-      throw createHttpError.NotFound('Request not found')
-    }
-
-    // check if user is the receiver
-    if (requestExisting.to.toString() !== userId) {
-      throw createHttpError.Forbidden('You are not authorized to decline this request')
-    }
+    const friendRequest = await checkFriendRequest(requestId, userId)
+    const { _id } = friendRequest
 
     // delete request
-    await FriendRequest.findByIdAndDelete(requestId)
+    await FriendRequest.findByIdAndDelete(_id)
   }
 }
