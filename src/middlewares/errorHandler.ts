@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { isHttpError } from 'http-errors'
 import { AppError } from '~/errors/AppError'
 import { sendResponse } from '~/utils/responseHelper'
 
-export const errorHandler = (error: unknown, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
   if (res.headersSent) {
     return next(error)
   }
@@ -29,6 +29,7 @@ export const errorHandler = (error: unknown, req: Request, res: Response, next: 
   }
 
   // Fallback 500
-  const message = process.env.NODE_ENV === 'development' && err?.message ? err.message : 'Internal server error'
+  const message = err?.message || 'Internal server error'
+
   return sendResponse.error(res, message, 500)
 }
