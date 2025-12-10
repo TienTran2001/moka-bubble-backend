@@ -1,15 +1,14 @@
-import { NextFunction, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import envConfig from '~/config/env'
 import { User } from '~/models'
-import { IRequest } from '~/types/request'
 import { sendResponse } from '~/utils/responseHelper'
 
 interface IJwtPayload {
   userId: string
 }
 
-export const protectedRoute = async (req: IRequest, res: Response, next: NextFunction) => {
+export const protectedRoute = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers['authorization']
     const token = authHeader?.split(' ')[1]
