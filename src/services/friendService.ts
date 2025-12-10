@@ -88,5 +88,37 @@ export const friendService = {
 
     // delete request
     await FriendRequest.findByIdAndDelete(_id)
+  },
+
+  getAllFriends: async (userId: string) => {
+    const populateFields = '_id displayName avatarUrl'
+    const result = await Friend.find({
+      $or: [
+        {
+          userA: userId
+        },
+        {
+          userB: userId
+        }
+      ]
+    })
+      .populate('userA', populateFields)
+      .populate('userB', populateFields)
+      .lean()
+
+    const friends = result.map((friend) => {
+      return friend.userA._id.toString() === userId ? friend.userB : friend.userA
+    })
+
+    return friends
+  },
+
+  getFriendRequests: async (userId: string) => {
+    const requests = await FriendRequest.find({ to: userId })
+      .populate('from', '_id displayName avatarUrl')
+      .sort({ createdAt: -1 })
+      .lean()
+
+    return requests
   }
 }

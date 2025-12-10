@@ -1,8 +1,7 @@
 import { Request, Response } from 'express'
-import { IRequest } from '~/types/request'
 import { sendResponse } from '~/utils/responseHelper'
 
-const authMe = (req: IRequest, res: Response) => {
+const authMe = (req: Request, res: Response) => {
   const user = req.user
   if (!user) return sendResponse.error(res, 'User not found', 404)
 
