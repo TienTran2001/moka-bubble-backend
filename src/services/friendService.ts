@@ -107,10 +107,6 @@ export const friendService = {
       .lean()
 
     const friends = result.map((friend) => {
-      console.log({
-        userId,
-        friend
-      })
       return friend.userA._id.toString() === userId ? friend.userB : friend.userA
     })
 
