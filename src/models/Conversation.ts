@@ -1,5 +1,38 @@
 import mongoose from 'mongoose'
 
+export interface IParticipant {
+  userId: mongoose.Types.ObjectId
+  joinedAt: Date
+}
+
+export interface IGroup {
+  name: string
+  createdBy: mongoose.Types.ObjectId
+}
+
+export interface ILastMessage {
+  _id: string
+  content: string
+  senderId: mongoose.Types.ObjectId
+  createdAt: Date
+}
+
+export type ConversationType = 'direct' | 'group'
+export type LastMessageType = 'text' | 'image' | 'audio' | 'video' | 'file'
+
+export interface IConversation {
+  _id: mongoose.Types.ObjectId
+  type: ConversationType
+  participants: IParticipant[]
+  group: IGroup
+  lastMessageAt: Date
+  seenBy: mongoose.Types.ObjectId[]
+  lastMessage: ILastMessage
+  unreadCounts: Map<mongoose.Types.ObjectId, number>
+}
+
+export type ConversationDocument = mongoose.HydratedDocument<IConversation>
+
 const participantSchema = new mongoose.Schema(
   {
     userId: {
@@ -90,6 +123,6 @@ const conversationSchema = new mongoose.Schema(
 )
 
 conversationSchema.index({ 'participants.userId': 1, lastMessageAt: -1 })
-const Conversation = mongoose.model('Conversation', conversationSchema)
+const Conversation = mongoose.model<IConversation>('Conversation', conversationSchema)
 
 export default Conversation
